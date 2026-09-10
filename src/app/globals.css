@@ -1,0 +1,316 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------------ *
+ * Theme tokens. Every colour is a space-separated RGB triplet so the
+ * Tailwind `rgb(var(--x) / <alpha-value>)` mapping keeps opacity
+ * modifiers (bg-primary/40 …) working.
+ *
+ * Design language: "notebook" — warm paper, ballpoint-blue ink, a red
+ * margin rule and marker-highlighter accents. Light = a sunlit page on
+ * a desk; dark = the same page under a desk lamp late at night. Depth
+ * comes from paper texture, soft card shadows and slight rotation —
+ * never glass or neon glow.
+ * ------------------------------------------------------------------ */
+:root {
+  color-scheme: light;
+
+  --c-primary: 47 82 176; /* ballpoint blue */
+  --c-primary-dim: 33 61 138;
+  --c-on-primary: 255 255 255;
+  --c-primary-container: 219 229 250;
+  --c-on-primary-container: 22 37 84;
+  --c-secondary: 107 97 76;
+  --c-on-secondary: 255 255 255;
+  --c-margin: 193 84 74; /* red margin rule */
+  --c-highlighter: 255 214 92; /* buttery yellow marker */
+  --c-highlighter-mint: 168 219 188;
+  --c-highlighter-pink: 240 181 201;
+  --c-ink: 51 46 38; /* graphite ink */
+  --c-error: 197 55 55;
+  --c-on-error: 255 255 255;
+  --c-error-container: 250 222 220;
+  --c-success: 61 122 84;
+  --c-background: 250 246 236; /* warm paper cream */
+  --c-on-background: 51 46 38;
+  --c-surface: 250 246 236;
+  --c-on-surface: 51 46 38;
+  --c-surface-variant: 238 230 209;
+  --c-on-surface-variant: 106 97 79;
+  --c-outline: 191 178 148;
+  --c-outline-variant: 224 214 188;
+  --c-surface-container-lowest: 255 253 247; /* index-card white */
+  --c-surface-container-low: 251 247 238;
+  --c-surface-container: 243 236 218;
+  --c-surface-container-high: 234 225 200;
+  --c-cork: 169 131 95;
+  --c-card: 255 253 247;
+
+  /* Paper texture tuning */
+  --bg-base: #faf6ec;
+  --rule-line: rgba(74, 96, 158, 0.13); /* faint ruled-paper blue */
+  --rule-size: 34px;
+  --margin-offset: 56px;
+  --paper-grain-opacity: 0.05;
+  --pen-shadow: rgb(33 61 138);
+  --card-tilt-a: -1.4deg;
+  --card-tilt-b: 1.1deg;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --c-primary: 138 168 247; /* brighter ballpoint under lamp light */
+  --c-primary-dim: 108 140 226;
+  --c-on-primary: 13 17 28;
+  --c-primary-container: 41 55 97;
+  --c-on-primary-container: 214 226 253;
+  --c-secondary: 188 176 150;
+  --c-on-secondary: 26 23 18;
+  --c-margin: 224 130 118;
+  --c-highlighter: 214 184 96;
+  --c-highlighter-mint: 128 176 152;
+  --c-highlighter-pink: 205 145 168;
+  --c-ink: 236 229 211;
+  --c-error: 240 128 120;
+  --c-on-error: 43 10 10;
+  --c-error-container: 79 34 32;
+  --c-success: 122 191 148;
+  --c-background: 24 22 18; /* late-night desk */
+  --c-on-background: 236 229 211;
+  --c-surface: 24 22 18;
+  --c-on-surface: 236 229 211;
+  --c-surface-variant: 46 42 33;
+  --c-on-surface-variant: 188 176 150;
+  --c-outline: 92 84 66;
+  --c-outline-variant: 58 53 42;
+  --c-surface-container-lowest: 34 31 25;
+  --c-surface-container-low: 30 27 22;
+  --c-surface-container: 40 36 29;
+  --c-surface-container-high: 50 45 36;
+  --c-cork: 120 92 65;
+  --c-card: 34 31 25;
+
+  --bg-base: #181612;
+  --rule-line: rgba(138, 168, 247, 0.09);
+  --rule-size: 34px;
+  --margin-offset: 56px;
+  --paper-grain-opacity: 0.08;
+  --pen-shadow: rgb(13 17 28);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Substrate: ruled notebook paper with a margin rule and a faint grain,
+   painted on a fixed pseudo-element (its own compositor layer) rather than
+   `background-attachment: fixed`, which repaints on scroll and is broken on
+   iOS Safari. */
+body {
+  @apply bg-background text-on-surface antialiased;
+  position: relative;
+  background-color: var(--bg-base);
+  transition: background-color 0.4s ease;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-image: linear-gradient(to bottom, var(--rule-line) 1px, transparent 1px);
+  background-size: 100% var(--rule-size);
+}
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: linear-gradient(to right, transparent calc(var(--margin-offset) - 1px), rgb(var(--c-margin) / 0.35) calc(var(--margin-offset) - 1px), rgb(var(--c-margin) / 0.35) var(--margin-offset), transparent calc(var(--margin-offset) + 1px));
+}
+
+::selection {
+  background: rgb(var(--c-highlighter) / 0.75);
+  color: rgb(var(--c-ink));
+}
+
+@layer components {
+  .container-max {
+    @apply mx-auto w-full max-w-max-width px-gutter;
+  }
+
+  /* Eyebrow label in the handwriting face — a scribbled note above a heading. */
+  .hand {
+    @apply font-hand text-2xl leading-none text-primary;
+  }
+
+  /* Index card: the core surface — flat paper card with a soft lift shadow
+     and a faint rotation that straightens on hover. */
+  .index-card {
+    @apply relative bg-surface-container-lowest text-on-surface;
+    border: 1px solid rgb(var(--c-outline-variant));
+    border-radius: 14px;
+    box-shadow: 0 10px 24px -14px rgba(51, 41, 24, 0.28);
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
+  }
+  .index-card--ruled::before {
+    content: "";
+    @apply absolute inset-y-4 left-4 w-px;
+    background: rgb(var(--c-margin) / 0.45);
+  }
+  .index-card--tilt {
+    transform: rotate(var(--tilt, -1.2deg));
+  }
+  .index-card--tilt:hover {
+    transform: rotate(0deg) translateY(-4px);
+    box-shadow: 0 22px 40px -18px rgba(51, 41, 24, 0.35);
+  }
+
+  /* Sticky note: a rotated colored square with a strip of washi tape. */
+  .sticky-note {
+    @apply relative p-lg text-on-surface;
+    background: rgb(var(--c-highlighter) / 0.55);
+    border-radius: 4px;
+    box-shadow: 0 12px 20px -12px rgba(51, 41, 24, 0.35);
+    transform: rotate(var(--tilt, -2deg));
+  }
+  .sticky-note--mint {
+    background: rgb(var(--c-highlighter-mint) / 0.6);
+  }
+  .sticky-note--pink {
+    background: rgb(var(--c-highlighter-pink) / 0.6);
+  }
+
+  /* Washi tape strip, laid across a corner of a card or note. */
+  .tape {
+    @apply absolute h-6 w-20;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-3deg);
+    background: rgb(var(--c-primary) / 0.28);
+    border: 1px solid rgb(var(--c-primary) / 0.2);
+    box-shadow: 0 2px 6px -2px rgba(51, 41, 24, 0.3);
+  }
+
+  /* Corkboard: a warm brown textured band used for testimonials / pinboards. */
+  .corkboard {
+    background-color: rgb(var(--c-cork));
+    background-image: radial-gradient(rgba(0, 0, 0, 0.12) 1px, transparent 1.5px),
+      radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1.5px);
+    background-size: 18px 18px, 14px 14px;
+    background-position: 0 0, 7px 7px;
+    color: #fff8ea;
+  }
+
+  /* Three-hole punch column down a card's left edge. */
+  .paper-punch {
+    background-image: radial-gradient(circle, rgb(var(--c-outline-variant)) 40%, transparent 42%);
+    background-size: 100% 64px;
+    background-repeat: repeat-y;
+    background-position: center 32px;
+  }
+
+  /* Spiral binding: a strip of rings, evoking a notebook's bound edge. */
+  .spiral-binding {
+    background-image: radial-gradient(circle, rgb(var(--c-outline)) 32%, transparent 34%);
+    background-size: 22px 22px;
+    background-repeat: repeat-y;
+    background-position: center;
+  }
+
+  /* Buttons — a tactile "pen click": a hard bottom shadow that flattens
+     when pressed. */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-sm rounded-lg bg-primary px-lg py-sm font-semibold text-on-primary transition-all;
+    box-shadow: 0 3px 0 0 var(--pen-shadow);
+  }
+  .btn-primary:hover {
+    filter: brightness(1.06);
+    transform: translateY(1px);
+    box-shadow: 0 2px 0 0 var(--pen-shadow);
+  }
+  .btn-primary:active {
+    transform: translateY(3px);
+    box-shadow: none;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-sm rounded-lg border border-outline px-lg py-sm font-semibold text-on-surface transition-all;
+    background: rgb(var(--c-surface-container-lowest));
+  }
+  .btn-ghost:hover {
+    @apply text-primary border-primary;
+  }
+  .btn-dark {
+    @apply inline-flex items-center justify-center gap-sm rounded-lg bg-ink px-lg py-sm font-semibold text-background transition-all hover:opacity-90;
+  }
+
+  .input-notebook {
+    @apply w-full rounded-lg border border-outline bg-surface-container-lowest px-md py-sm text-body-md text-on-surface outline-none transition-all;
+  }
+  .input-notebook:focus {
+    @apply border-primary;
+    box-shadow: 0 0 0 3px rgb(var(--c-primary) / 0.16);
+  }
+
+  .segmented {
+    @apply inline-flex items-center gap-1 rounded-lg border border-outline bg-surface-container-lowest p-1;
+  }
+  .segmented-item {
+    @apply flex items-center gap-1 rounded-md px-md py-sm text-body-sm font-semibold capitalize text-on-surface-variant transition-all;
+  }
+  .segmented-item[data-active="true"] {
+    @apply bg-primary text-on-primary;
+  }
+}
+
+@layer utilities {
+  /* Highlighter-marker stroke behind inline text. */
+  .highlight {
+    background-image: linear-gradient(transparent 58%, rgb(var(--c-highlighter) / 0.75) 58%);
+    padding: 0 0.1em;
+  }
+  .highlight--mint {
+    background-image: linear-gradient(transparent 58%, rgb(var(--c-highlighter-mint) / 0.85) 58%);
+  }
+  .highlight--pink {
+    background-image: linear-gradient(transparent 58%, rgb(var(--c-highlighter-pink) / 0.85) 58%);
+  }
+  .marker-underline {
+    background-image: linear-gradient(transparent 86%, rgb(var(--c-highlighter) / 0.85) 86%);
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Torn-paper edge between stacked sections, via a repeating zigzag clip. */
+  .torn-edge-b {
+    clip-path: polygon(
+      0% 0%, 100% 0%, 100% 100%,
+      96% 92%, 92% 100%, 88% 92%, 84% 100%, 80% 92%, 76% 100%, 72% 92%, 68% 100%,
+      64% 92%, 60% 100%, 56% 92%, 52% 100%, 48% 92%, 44% 100%, 40% 92%, 36% 100%,
+      32% 92%, 28% 100%, 24% 92%, 20% 100%, 16% 92%, 12% 100%, 8% 92%, 4% 100%, 0% 92%
+    );
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .index-card--tilt,
+    .index-card--tilt:hover,
+    .sticky-note {
+      transform: none;
+    }
+    .animate-drift,
+    .animate-fade-up,
+    .animate-marquee {
+      animation: none !important;
+    }
+  }
+}
